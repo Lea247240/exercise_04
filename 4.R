@@ -2,7 +2,9 @@ rm(list=ls())
 
 #Cesta:
 setwd('V:/MPA_PRG/exercise_04')
+setwd('D:/VUT/4-5rocnik/moje/MPA-PRG/exercise_04') # home
 
+#.................................................................................................................
 ## The Change Problem
 ### Task 1
 # Convert some amount of money into the fewest number of coins.
@@ -63,7 +65,7 @@ ReturnCoins <- function(M){
 
 ReturnCoins(99)
 
-
+#.................................................................................................................
 ### Task 2
 # Convert some amount of money `M` into given denominations, using the smallest possible number of coins.
 
@@ -80,31 +82,30 @@ ReturnCoins(99)
 # Write a pseudocode for the change problem for any currency. Hint: use array indexing. 
 # Implement the pseudocode in R as a separate function `UniversalReturnCoins()`. 
 # Find input values for which the algorithm will not work correctly, meaning the output will be incorrect.
-i <- list()
-print(length(c(50,20,10,5,2,1)))
 
-vek <- c(0)
-vek <- c(vek,1)
+# pokusy + poznamky
+#i <- list()
+#print(length(c(50,20,10,5,2,1)))
+#vek <- c(0)
+#vek <- c(vek,1)
 
 UniversalReturnCoins <- function(M, mena){
   
-  for (c in mena) {
-    if (M > 1){
-      id <- M %/% c
-      M <- M %% c
-      
-    }
-    sum <- c(sum,id, c)
-    
+  n <- length(mena)
+  counts <- numeric(n) #vytvori numeric vektor
+  
+  for (i in (1:n)){
+    counts[i] <-  M %/% mena[i]# pocet minci
+    M <- M %% mena[i] #zbytek
   }
-  id <- M %/% c
-  sum <- c(sum,id, c)
-  return(sum) #lépe vypsat jako slovnik, ale to uz si nepamatuju jak 
+  result <- data.frame(denomination = mena, count = counts)
+  return (result)
 }
+
 
 UniversalReturnCoins(99, c(50,20,10,5,2,1))
 
-
+#.................................................................................................................
 ## The Most Chocolate Path
 ### Task 3
 # In R, implement a recursive function `Chocolate()` according to the following pseudocode.
@@ -131,10 +132,68 @@ UniversalReturnCoins(99, c(50,20,10,5,2,1))
 ###############################
 
 Chocolate <- function(M, r, c){
-  if(r == M[0]){
-    
+  if(r == nrow(M)){
+    return(M[r,c])
+  }
+  else {
+    bars <- M[r,c]
+    down <- Chocolate(M,(r+1),c) #jdeme solu
+    diagonal <- Chocolate(M, (r + 1), (c + 1)) #jdeme diagonalne vpravo dolu
+    return(max(down, diagonal) + bars) #hledame max cokolad
   }
 }
 
+#chci matici s 3 radky
+M <- matrix(c(3, 1, 7, 4, 2,2, 4, 6, 8, 5,1, 4, 9, 3, 1), nrow = 3, byrow = TRUE) 
+print(M)
+
+#volani funkce
+Chocolate(M,1,1) #zaciname uplne vlevo nahore pozice 1,1
+#.................................................................................................................
+
+## The Towers of Hanoi
+### Task 4
+# In R, implement a function `HanoiTowers()` according to pseudocode. 
+
+# Input:
+  # a number of discs
+  # an index of starting peg
+  # an index of a peg, where all disks will be to moved to
+
+# Output:
+  # a sequence of steps to solve the towers of Hanoi problem
+
+##########################################################
+#HanoiTowers(n, fromPeg, toPeg)
+#1   if n = 1
+#2     output "Move disc from peg fromPeg to peg toPeg"
+#3     return
+#4   unusedPeg ← 6 – fromPeg – toPeg
+#5   HanoiTowers(n – 1, fromPeg, unusedPeg)
+#6   output "Move disc from peg fromPeg to peg toPeg"
+#7   HanoiTowers(n – 1, emptyPeg, toPeg)
+#8   return
+#########################################################
+
+
+HanoiTowers <- function(n, fromPeg, toPeg){
+  if (n == 1){
+    step <- paste("Move disc from peg", fromPeg ,"to peg", toPeg)
+    return(step)
+  }
+  else {
+    unusedPeg <- (6 - fromPeg - toPeg) #najdeme pomocný kolík
+    
+    steps1 <- HanoiTowers(n-1, fromPeg, unusedPeg)
+    result <- paste("Move disc from peg", fromPeg, "to peg", toPeg)
+    step2 <- HanoiTowers(n-1, unusedPeg, toPeg)
+    
+    # spojime vsechny kroky do jednoho vektoru textu
+    return(c(steps1, result, step2))
+  }
+}
+
+# volani funkce
+HanoiTowers(3,1,3)
 
 
